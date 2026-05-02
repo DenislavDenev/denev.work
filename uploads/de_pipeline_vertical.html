@@ -1,0 +1,284 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+
+.wrap{
+  font-family:'Syne',sans-serif;
+  padding:32px 48px 40px;
+  display:flex;
+  justify-content:center;
+}
+
+.pipeline{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  width:100%;
+  max-width:560px;
+}
+
+/* vertical pipe line */
+.pipe-line{
+  position:absolute;
+  left:50%;
+  top:0;
+  bottom:0;
+  width:3px;
+  transform:translateX(-50%);
+  background:var(--color-border-secondary);
+  z-index:0;
+}
+.pipe-line::before{
+  content:'';
+  position:absolute;
+  top:-4px;left:50%;
+  transform:translateX(-50%);
+  width:9px;height:9px;
+  border-radius:50%;
+  background:var(--color-border-secondary);
+}
+.pipe-line::after{
+  content:'';
+  position:absolute;
+  bottom:-9px;left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:6px solid transparent;
+  border-right:6px solid transparent;
+  border-top:10px solid var(--color-border-secondary);
+}
+
+/* each stage row */
+.stage{
+  position:relative;
+  z-index:1;
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr 24px 1fr;
+  align-items:center;
+  column-gap:0;
+  padding:18px 0;
+}
+
+/* dot on pipe */
+.stage-dot{
+  width:12px;height:12px;
+  border-radius:50%;
+  background:var(--color-background-primary);
+  border:2px solid var(--color-border-secondary);
+  justify-self:center;
+  position:relative;
+  z-index:2;
+}
+
+/* label + icons LEFT side */
+.stage-left{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  padding-right:20px;
+  gap:10px;
+}
+
+/* label + icons RIGHT side */
+.stage-right{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  padding-left:20px;
+  gap:10px;
+}
+
+.stage-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--color-text-tertiary);
+}
+
+.icons-row{
+  display:flex;
+  flex-direction:row;
+  flex-wrap:wrap;
+  gap:14px;
+}
+.stage-left .icons-row{justify-content:flex-end;}
+.stage-right .icons-row{justify-content:flex-start;}
+
+/* individual tool */
+.tool{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.tool svg{
+  width:26px;height:26px;
+  fill:var(--color-text-primary);
+  transition:fill .15s, transform .15s;
+  display:block;
+}
+.tool:hover svg{
+  fill:#2563eb;
+  transform:scale(1.15);
+}
+
+/* tooltip — floats away from the pipe center */
+.tooltip{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:var(--color-background-primary);
+  border:0.5px solid var(--color-border-secondary);
+  border-radius:8px;
+  padding:7px 11px;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  z-index:100;
+  white-space:nowrap;
+}
+.tool:hover .tooltip{opacity:1;}
+
+/* tooltips on left side point further left */
+.stage-left .tooltip{
+  right:calc(100% + 10px);
+  left:auto;
+}
+/* tooltips on right side point further right */
+.stage-right .tooltip{
+  left:calc(100% + 10px);
+  right:auto;
+}
+
+.tt-name{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px;}
+.tt-role{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--color-text-tertiary);max-width:160px;white-space:normal;line-height:1.4;}
+
+/* connector stub from dot to content */
+.stage-left::after{
+  content:'';
+  position:absolute;
+  right:0; top:50%;
+  width:20px; height:1px;
+  background:var(--color-border-tertiary);
+  transform:translateY(-50%);
+  pointer-events:none;
+}
+.stage-right::before{
+  content:'';
+  position:absolute;
+  left:0; top:50%;
+  width:20px; height:1px;
+  background:var(--color-border-tertiary);
+  transform:translateY(-50%);
+  pointer-events:none;
+}
+</style>
+
+<div class="wrap">
+  <div class="pipeline">
+    <div class="pipe-line"></div>
+    <div id="stages"></div>
+  </div>
+</div>
+
+<script>
+const SVG = {
+  python:`<svg viewBox="0 0 24 24"><path d="M11.914 0C5.82 0 6.2 2.656 6.2 2.656l.007 2.752h5.814v.826H3.9S0 5.789 0 11.969c0 6.18 3.403 5.96 3.403 5.96h2.032v-2.867s-.109-3.403 3.35-3.403h5.77s3.24.052 3.24-3.13V3.13S18.28 0 11.914 0zM8.708 1.81a1.044 1.044 0 110 2.087 1.044 1.044 0 010-2.087zM12.086 24c6.094 0 5.714-2.656 5.714-2.656l-.007-2.752h-5.814v-.826h8.121S24 18.211 24 12.031c0-6.18-3.403-5.96-3.403-5.96h-2.032v2.867s.109 3.403-3.35 3.403h-5.77s-3.24-.052-3.24 3.13V20.87S5.72 24 12.086 24zm3.206-1.81a1.044 1.044 0 110-2.088 1.044 1.044 0 010 2.087z"/></svg>`,
+  kafka:`<svg viewBox="0 0 24 24"><path d="M20.505 12.5a2.5 2.5 0 00-2.39-2.495l-.002-.005H13.5v-2h1.25a.75.75 0 000-1.5H13.5V5.25A2.5 2.5 0 0011 2.75a2.5 2.5 0 00-2.5 2.5V6.5H7.25a.75.75 0 000 1.5H8.5v2H3.887l-.002.005A2.5 2.5 0 001.495 12.5 2.5 2.5 0 003.885 15l.002.005H8.5v2H7.25a.75.75 0 000 1.5H8.5v1.25a2.5 2.5 0 002.5 2.5 2.5 2.5 0 002.5-2.5V18.5h1.25a.75.75 0 000-1.5H13.5v-2h4.613l.002-.005a2.5 2.5 0 002.39-2.495zM12 4.25a1 1 0 110 2 1 1 0 010-2zm-2.5 8.25a1 1 0 110-2 1 1 0 010 2zm2.5 7.25a1 1 0 110-2 1 1 0 010 2zm2.5-7.25a1 1 0 110-2 1 1 0 010 2z"/></svg>`,
+  spark:`<svg viewBox="0 0 24 24"><path d="M14.0943 3l-1.4726 5.6648 3.0505-1.5232L8.0943 21l1.4723-5.6648-3.0503 1.5232z"/></svg>`,
+  airflow:`<svg viewBox="0 0 24 24"><path d="M.9022 13.5898l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.425-6.5472l2.4018-2.4018 2.2818 2.2818L9.61 9.323zM.7822 7.0026L3.184 4.6008l2.2818 2.2818-2.4018 2.4018zm6.303 6.5248L9.487 11.124l2.2818 2.2818-2.4018 2.4018zM13.41 3.0422l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.4248 6.4248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zM13.29 9.4452l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.303 6.5248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zM7.0874 19.97l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.4248-6.4248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zM6.9674 13.423l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.303 6.5248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018z"/></svg>`,
+  dbt:`<svg viewBox="0 0 24 24"><path d="M20.452 4.834A11.954 11.954 0 0012 1C5.925 1 1 5.925 1 12a11 11 0 00.538 3.397l7.652-7.652a2.494 2.494 0 013.525 0l6.737 6.737a2.494 2.494 0 010 3.525L12.8 23.63c4.967-.785 8.815-4.97 9.163-10.09L20.452 4.834zM11.2 23.63L3.549 15.977a2.494 2.494 0 010-3.525l1.264-1.264L12.45 18.83l-1.25 4.8z"/></svg>`,
+  sql:`<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2zm8 15.5c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5V15c1.69 1.2 4.6 2 8 2s6.31-.8 8-2v2.5zm0-5c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5V10c1.69 1.2 4.6 2 8 2s6.31-.8 8-2v2.5zm-8-2.5c-4.42 0-8-1.12-8-2.5S7.58 5 12 5s8 1.12 8 2.5S16.42 10 12 10z"/></svg>`,
+  snowflake:`<svg viewBox="0 0 24 24"><path d="M20.187 10.5h-3.315l2.349-2.348a.749.749 0 10-1.06-1.06l-3.41 3.408H13v-1.75l3.409-3.41a.749.749 0 10-1.061-1.059L13 6.63V3.313a.75.75 0 00-1.5 0V6.63L9.152 4.28a.749.749 0 10-1.06 1.061L11.5 8.75V10.5H9.749L6.34 7.092a.749.749 0 10-1.061 1.06L7.628 10.5H3.813a.75.75 0 100 1.5h3.815l-2.35 2.349a.749.749 0 101.062 1.06L9.75 12H11.5v1.75l-3.41 3.408a.749.749 0 001.061 1.06L11.5 15.87v3.315a.75.75 0 001.5 0V15.87l2.349 2.348a.749.749 0 101.06-1.06L13 13.75V12h1.75l3.41 3.409a.749.749 0 001.06-1.061L16.872 12h3.315a.75.75 0 100-1.5z"/></svg>`,
+  bigquery:`<svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18zM12 7a5 5 0 100 10A5 5 0 0012 7zm0 2a3 3 0 110 6 3 3 0 010-6zm4.5 6.5l1.5 1.5-1.06 1.06-1.5-1.5 1.06-1.06z"/></svg>`,
+  aws:`<svg viewBox="0 0 24 24"><path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.064.056.128.056.184 0 .08-.048.16-.152.24l-.504.336a.383.383 0 01-.208.072c-.08 0-.16-.04-.24-.112a2.47 2.47 0 01-.288-.376 6.18 6.18 0 01-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 01-.28.104.488.488 0 01-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 01.224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 011.246-.151c.95 0 1.644.216 2.091.647.439.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 00-.735-.136 6.02 6.02 0 00-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 01-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 01.32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 01.311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 01-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 01-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.215-.151-.247-.223a.563.563 0 01-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 00.415-.758.777.777 0 00-.215-.559c-.144-.151-.416-.287-.807-.415l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 01-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415.32-.096.655-.136 1.006-.136.175 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 01.24.2.43.43 0 01.071.263v.375c0 .168-.064.256-.184.256a.83.83 0 01-.303-.096 3.652 3.652 0 00-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.159.152.454.304.877.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167z"/></svg>`,
+  gcp:`<svg viewBox="0 0 24 24"><path d="M12.19 2.38a9.344 9.344 0 00-9.234 6.893c.053-.02-.055.013 0 0-3.875 2.551-3.922 8.11-.247 10.941l.006.005a6.016 6.016 0 003.587 1.268h11.525c1.327.01 2.62-.466 3.623-1.336.975-.832 1.753-2.072 1.847-3.662a4.931 4.931 0 00-1.235-3.512A8.802 8.802 0 0012.19 2.38zm-.005 2.528a6.27 6.27 0 014.697 2.1 6.316 6.316 0 011.525 3.4l.063.635.642.022a2.392 2.392 0 012.394 2.392c0 .794-.382 1.437-.905 1.895-.523.457-1.213.726-1.879.724H6.308a3.48 3.48 0 01-2.041-.736l-.015-.012C2.3 13.57 2.315 10.318 4.27 8.625l.438-.373-.162-.559a6.75 6.75 0 01-.17-.992 6.785 6.785 0 017.809-6.793z"/></svg>`,
+  azure:`<svg viewBox="0 0 24 24"><path d="M13.05 4.24L6.56 18.05H2L8.11 8.37zm.71 1.9l4.13 10.3-9.79 1.8 6.07-1.56-3.03-5.07z"/></svg>`,
+  docker:`<svg viewBox="0 0 24 24"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.186.186 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.185.186v1.887c0 .102.083.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/></svg>`,
+  k8s:`<svg viewBox="0 0 24 24"><path d="M10.204 14.35l.007.01-.999 2.413a5.171 5.171 0 01-2.075-2.597l2.578-.437.004.005zm.24.481a5.19 5.19 0 002.523.826v-2.628l-.006-.002-2.517 1.804zm3.32.826a5.185 5.185 0 002.523-.826l-2.523-1.804v2.63zm.819-.33a5.17 5.17 0 001.62-2.24l-2.44.41 1.155 1.875-.335-.046zm1.663-2.64a5.24 5.24 0 00.046-.68 5.293 5.293 0 00-.05-.707l-2.584.44 2.588.947zm-9.48-.68c0 .226.018.45.046.67l2.59-.946-2.587-.44a5.21 5.21 0 00-.049.716zm.238-1.065l2.438.41-1.154-1.872a5.19 5.19 0 00-1.284 1.462zm2.042-2.098l1.142 1.854.005-2.605a5.162 5.162 0 00-1.147.75zm2.445-.751v2.606l1.14-1.854a5.198 5.198 0 00-1.14-.752zm1.534 1.013L11.57 11.58l2.436-.41a5.197 5.197 0 00-1.16-1.414zm-4.3 3.818H6.138a5.17 5.17 0 001.162 2.225l1.575-2.225zm9.26 0h-1.637l-1.575 2.225A5.174 5.174 0 0017.785 13zm-5.41 3.295v2.296a5.185 5.185 0 002.087-.818l-2.086-1.478zm-1.298.001l-2.087 1.477a5.186 5.186 0 002.087.819v-2.296zM12 6.5a5.5 5.5 0 100 11A5.5 5.5 0 0012 6.5zM12 2L2 6.5v9L12 20l10-4.5v-9L12 2z"/></svg>`,
+  git:`<svg viewBox="0 0 24 24"><path d="M23.546 10.93L13.067.452a1.55 1.55 0 00-2.188 0L8.708 2.627l2.76 2.76a1.838 1.838 0 012.327 2.341l2.658 2.66a1.838 1.838 0 11-1.103 1.076l-2.48-2.48v6.505a1.84 1.84 0 11-1.512-.036V9.35a1.836 1.836 0 01-.999-2.406L7.616 4.29.454 11.452a1.55 1.55 0 000 2.187l10.48 10.48a1.55 1.55 0 002.186 0l10.426-10.426a1.55 1.55 0 000-2.188"/></svg>`,
+  tableau:`<svg viewBox="0 0 24 24"><path d="M11.14 4.588V1.5h1.714v3.088h3.088v1.714h-3.088v3.088H11.14V6.302H8.051V4.588h3.089zm-7.9 9.618V12.51h2.333v1.696H1.24v.002zm17.52 0V12.51H23.1v1.696h-2.337v.002zm-8.76 4.382v-2.334h1.697v2.334h-1.697zm0-8.763V7.49h1.697v2.335h-1.697zM7.5 17.7v-1.4h1.4v1.4H7.5zm9-11.4V4.9h1.4v1.4h-1.4zM4.2 7.5H2.8v1.4h1.4V7.5zm15 7.5h-1.4v1.4h1.4V15zM4.2 15H2.8v1.4h1.4V15zm15-7.5h-1.4v1.4h1.4V7.5zM7.5 6.3V4.9h1.4v1.4H7.5z"/></svg>`,
+  powerbi:`<svg viewBox="0 0 24 24"><path d="M5 3h4v18H5zm5 4h4v14h-4zm5-2h4v16h-4z"/></svg>`,
+};
+
+// alternating left/right, each with label + icons
+const STAGES = [
+  { label:'Ingest',        side:'left',  tools:[
+    {id:'python', name:'Python', role:'API calls, scripts, connectors'},
+    {id:'kafka',  name:'Kafka',  role:'Real-time event streaming'},
+  ]},
+  { label:'Process',       side:'right', tools:[
+    {id:'spark',  name:'Spark',  role:'Distributed batch & stream processing'},
+  ]},
+  { label:'Orchestrate',   side:'left',  tools:[
+    {id:'airflow',name:'Airflow',role:'DAG scheduling & monitoring'},
+  ]},
+  { label:'Transform',     side:'right', tools:[
+    {id:'dbt',    name:'dbt',    role:'SQL-based data modeling'},
+    {id:'sql',    name:'SQL',    role:'Warehouse-native transforms'},
+  ]},
+  { label:'Store',         side:'left',  tools:[
+    {id:'snowflake', name:'Snowflake', role:'Cloud data warehouse'},
+    {id:'bigquery',  name:'BigQuery',  role:'Serverless analytics (GCP)'},
+  ]},
+  { label:'Cloud & Infra', side:'right', tools:[
+    {id:'aws',    name:'AWS',    role:'S3, Redshift, Glue, Lambda'},
+    {id:'gcp',    name:'GCP',    role:'GCS, BigQuery, Dataflow'},
+    {id:'azure',  name:'Azure',  role:'ADLS, Synapse, Data Factory'},
+    {id:'docker', name:'Docker', role:'Containerised pipelines'},
+    {id:'k8s',    name:'K8s',    role:'Container orchestration'},
+    {id:'git',    name:'Git',    role:'Version control & CI/CD'},
+  ]},
+  { label:'Visualise',     side:'left',  tools:[
+    {id:'tableau', name:'Tableau',  role:'Interactive BI dashboards'},
+    {id:'powerbi', name:'Power BI', role:'Microsoft BI & reporting'},
+  ]},
+];
+
+const stagesEl = document.getElementById('stages');
+stagesEl.style.cssText = 'width:100%;display:flex;flex-direction:column;align-items:stretch;position:relative;z-index:1;';
+
+STAGES.forEach(stage => {
+  const row = document.createElement('div');
+  row.className = 'stage';
+
+  const isLeft = stage.side === 'left';
+
+  // build icons HTML
+  const iconsHtml = stage.tools.map(tool => `
+    <div class="tool">
+      <div class="tooltip">
+        <div class="tt-name">${tool.name}</div>
+        <div class="tt-role">${tool.role}</div>
+      </div>
+      ${SVG[tool.id] || ''}
+    </div>
+  `).join('');
+
+  const contentHtml = `
+    <div class="stage-label" style="margin-bottom:6px;">${stage.label}</div>
+    <div class="icons-row">${iconsHtml}</div>
+  `;
+
+  if (isLeft) {
+    row.innerHTML = `
+      <div class="stage-left" style="position:relative;">${contentHtml}</div>
+      <div class="stage-dot"></div>
+      <div></div>
+    `;
+  } else {
+    row.innerHTML = `
+      <div></div>
+      <div class="stage-dot"></div>
+      <div class="stage-right" style="position:relative;">${contentHtml}</div>
+    `;
+  }
+
+  stagesEl.appendChild(row);
+});
+</script>

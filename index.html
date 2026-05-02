@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denislav Denev · Data Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:           #0c1220;
+    --bg2:          #111827;
+    --surface:      #1e293b;
+    --surface2:     #243044;
+    --border:       rgba(51,65,85,0.7);
+    --border-blue:  rgba(59,130,246,0.4);
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-dim:     #475569;
+    --accent:       #3b82f6;
+    --accent2:      #60a5fa;
+    --accent-cyan:  #22d3ee;
+    --mono: 'IBM Plex Mono', monospace;
+    /* typography system */
+    --font-display: 'Georgia', serif;
+    --font-body:    system-ui, -apple-system, sans-serif;
+    --font-label:   system-ui, -apple-system, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 29.25px;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom: 0.8px solid transparent;
+    transition: background 300ms ease, border-color 300ms ease, backdrop-filter 300ms ease;
+  }
+
+  /* Full name in Georgia display style */
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    color: #f1f5f9;
+    text-decoration: none;
+    line-height: 28px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+  }
+
+  /* Link style from design system */
+  .nav-links a {
+    font-family: var(--font-label);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 9999px;
+    transition: color 150ms ease;
+  }
+  .nav-links a:hover { color: var(--accent2); }
+
+  /* ── Shared layout ── */
+  section { padding: 100px 0; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 0.8px;
+    background: var(--border);
+    max-width: 60px;
+  }
+
+  /* ── Section backgrounds — alternating pattern ── */
+  #about    { background: #0c1220; }
+  #pipeline { background: #0e1628; }
+  #projects { background: #0c1220; }
+  #contact  { background: #0e1628; }
+
+  /* display-lg token */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  /* ── Buttons ── */
+  /* Primary: #334155 bg, #60A5FA text, pill, shadow */
+  .btn-primary {
+    display: inline-block;
+    font-family: var(--font-label);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    padding: 12px 32px;
+    border-radius: 9999px;
+    text-decoration: none;
+    border: none;
+    box-shadow: 0 0 0 0 rgba(0,0,0,0), 0 0 0 0 rgba(0,0,0,0), rgba(30,58,138,0.5) 0px 10px 15px -3px, rgba(30,58,138,0.5) 0px 4px 6px -4px;
+    transition: opacity 150ms ease, transform 150ms cubic-bezier(0.4,0,0.2,1), box-shadow 150ms ease;
+    cursor: pointer;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* Secondary: transparent, #60A5FA text, blue border */
+  .btn-secondary {
+    display: inline-block;
+    font-family: var(--font-label);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: #60a5fa;
+    background: transparent;
+    padding: 8px 24px;
+    border-radius: 9999px;
+    border: 0.8px solid #3b82f6;
+    text-decoration: none;
+    transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { background: rgba(59,130,246,0.1); box-shadow: 0 0 0 0 rgba(0,0,0,0), 0 0 0 0 rgba(0,0,0,0), rgba(0,0,0,0.2) 0 1px 2px 0; }
+
+  /* ── Hero ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 160px 48px 80px;
+    max-width: 620px;
+    /* left ~45% like NexusStream, ribbons own the right */
+    width: 45%;
+    min-width: 300px;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 24px;
+    height: 0.8px;
+    background: var(--accent2);
+    opacity: 0.6;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: transparent;
+    background: linear-gradient(135deg, #818cf8 0%, #60a5fa 40%, #22d3ee 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 24px;
+  }
+
+  .hero-sub {
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 29.25px;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    max-width: 400px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ── About ── */
+  .about-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .about-text p {
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 29.25px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+  .about-text p strong { color: var(--text-primary); font-weight: 500; }
+
+  .skills-grid { display: flex; flex-direction: column; gap: 20px; width: 100%; margin-top: 48px; }
+
+  .skill-group-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .skill-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
+  .chip {
+    font-family: var(--font-label);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 0.8px solid var(--border);
+    padding: 4px 16px;
+    border-radius: 9999px;
+    transition: border-color 150ms ease, color 150ms ease;
+    cursor: default;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent2); }
+
+  /* ── Pipeline Section ── */
+
+  /* ── Projects ── */
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 32px;
+    margin-bottom: 32px;
+  }
+
+  .filter-chip {
+    font-family: var(--font-label);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    padding: 8px 20px;
+    border-radius: 9999px;
+    border: 0.8px solid var(--border);
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .filter-chip:hover { color: var(--accent2); border-color: var(--border-blue); }
+  .filter-chip.active {
+    background: #334155;
+    color: #60a5fa;
+    border-color: transparent;
+    box-shadow: rgba(0,0,0,0) 0 0 0 0, rgba(0,0,0,0) 0 0 0 0, rgba(0,0,0,0.2) 0 1px 2px 0;
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .project-card {
+    background: var(--surface);
+    border: 0.8px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    cursor: pointer;
+    transition: border-color 200ms cubic-bezier(0.4,0,0.2,1), transform 200ms cubic-bezier(0.4,0,0.2,1), box-shadow 200ms cubic-bezier(0.4,0,0.2,1);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  .project-card:hover {
+    border-color: var(--border-blue);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px -12px rgba(30,58,138,0.35);
+  }
+  .project-card:hover::before { opacity: 1; }
+
+  .project-number {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* display font for project titles */
+  .project-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  /* body-md for desc */
+  .project-desc {
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+
+  .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .project-tag {
+    font-family: var(--font-label);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent2);
+    background: rgba(59,130,246,0.1);
+    border: 0.8px solid rgba(59,130,246,0.2);
+    padding: 3px 10px;
+    border-radius: 9999px;
+  }
+
+  .project-arrow {
+    font-size: 18px;
+    color: var(--text-dim);
+    align-self: flex-end;
+    transition: color 200ms ease, transform 200ms ease;
+  }
+  .project-card:hover .project-arrow { color: var(--accent2); transform: translate(2px,-2px); }
+
+  .project-card.hidden { display: none; }
+
+  /* ── Contact ── */
+  #contact { text-align: center; padding: 60px 0; }
+
+  .contact-inner { max-width: 480px; margin: 0 auto; }
+
+  .contact-email {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3.5vw, 40px);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+    text-decoration: none;
+    display: block;
+    margin: 0 0 32px;
+    transition: color 150ms ease;
+  }
+  .contact-email:hover { color: var(--accent2); }
+
+  .contact-links { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 0.8px solid var(--border);
+    background: #0c1220;
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .hero-content { width: 100%; padding: 120px 24px 60px; }
+    .container { padding: 0 24px; }
+    section { padding: 72px 0; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .filter-bar { gap: 6px; }
+    .filter-chip { font-size: 13px; padding: 6px 14px; }
+    .contact-links { flex-direction: column; align-items: center; }
+    footer { padding: 20px 24px; }
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .hero-content { width: 55%; padding: 140px 40px 60px; }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="main-nav">
+  <a href="#hero" class="nav-logo" id="nav-name" style="opacity:0;pointer-events:none;transition:opacity 300ms ease;">Denislav Denev</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#pipeline">Stack</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+<script>
+  window.addEventListener('scroll', function() {
+    var hero = document.getElementById('hero');
+    var name = document.getElementById('nav-name');
+    var nav  = document.getElementById('main-nav');
+    if (!hero || !name) return;
+    var past = window.scrollY > hero.offsetHeight * 0.7;
+    name.style.opacity = past ? '1' : '0';
+    name.style.pointerEvents = past ? 'auto' : 'none';
+    nav.style.background = past ? 'rgba(12,18,32,0.85)' : 'transparent';
+    nav.style.borderBottomColor = past ? 'rgba(51,65,85,0.7)' : 'transparent';
+    nav.style.backdropFilter = past ? 'blur(12px)' : 'none';
+  });
+</script>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ─── SVGs ─────────────────────────────────────────────── */
+const SVG = {
+  python:    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.914 0C5.82 0 6.2 2.656 6.2 2.656l.007 2.752h5.814v.826H3.9S0 5.789 0 11.969c0 6.18 3.403 5.96 3.403 5.96h2.032v-2.867s-.109-3.403 3.35-3.403h5.77s3.24.052 3.24-3.13V3.13S18.28 0 11.914 0zM8.708 1.81a1.044 1.044 0 110 2.087 1.044 1.044 0 010-2.087zM12.086 24c6.094 0 5.714-2.656 5.714-2.656l-.007-2.752h-5.814v-.826h8.121S24 18.211 24 12.031c0-6.18-3.403-5.96-3.403-5.96h-2.032v2.867s.109 3.403-3.35 3.403h-5.77s-3.24-.052-3.24 3.13V20.87S5.72 24 12.086 24zm3.206-1.81a1.044 1.044 0 110-2.088 1.044 1.044 0 010 2.087z"/></svg>,
+  /* Official Simple Icons brand SVG paths — all monochrome via fill="currentColor" */
+  kafka:     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.598 9.853a2.207 2.207 0 000 4.294 2.207 2.207 0 000-4.294zm-3.196 4.44a2.207 2.207 0 000-4.294 2.207 2.207 0 000 4.294zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.184 16.168a.813.813 0 01-.324-.068l-1.695-.73a3.698 3.698 0 01-4.33 0l-1.695.73a.813.813 0 01-1.092-.44.813.813 0 01.44-1.091l1.592-.686a3.698 3.698 0 010-3.766l-1.592-.686a.813.813 0 01-.44-1.091.813.813 0 011.092-.44l1.695.73a3.698 3.698 0 014.33 0l1.695-.73a.813.813 0 011.091.44.813.813 0 01-.44 1.091l-1.591.686a3.698 3.698 0 010 3.766l1.591.686a.813.813 0 01.44 1.091.813.813 0 01-.767.508z"/></svg>,
+  spark:     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.0943 3l-1.4726 5.6648 3.0505-1.5232L8.0943 21l1.4723-5.6648-3.0503 1.5232z"/></svg>,
+  airflow:   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.9022 13.5898l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.425-6.5472l2.4018-2.4018 2.2818 2.2818L9.61 9.323zM.7822 7.0026L3.184 4.6008l2.2818 2.2818-2.4018 2.4018zm6.303 6.5248L9.487 11.124l2.2818 2.2818-2.4018 2.4018zM13.41 3.0422l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.4248 6.4248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zM13.29 9.4452l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.303 6.5248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zM7.0874 19.97l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.4248-6.4248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zM6.9674 13.423l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018zm6.303 6.5248l2.4018-2.4018 2.2818 2.2818-2.4018 2.4018z"/></svg>,
+  dbt:       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.452 4.834A11.954 11.954 0 0012 1C5.925 1 1 5.925 1 12a11 11 0 00.538 3.397l7.652-7.652a2.494 2.494 0 013.525 0l6.737 6.737a2.494 2.494 0 010 3.525L12.8 23.63c4.967-.785 8.815-4.97 9.163-10.09L20.452 4.834zM11.2 23.63L3.549 15.977a2.494 2.494 0 010-3.525l1.264-1.264L12.45 18.83l-1.25 4.8z"/></svg>,
+  sql:       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2zm8 15.5c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5V15c1.69 1.2 4.6 2 8 2s6.31-.8 8-2v2.5zm0-5c0 1.38-3.58 2.5-8 2.5s-8-1.12-8-2.5V10c1.69 1.2 4.6 2 8 2s6.31-.8 8-2v2.5zm-8-2.5c-4.42 0-8-1.12-8-2.5S7.58 5 12 5s8 1.12 8 2.5S16.42 10 12 10z"/></svg>,
+  snowflake: <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.187 10.5h-3.315l2.349-2.348a.749.749 0 10-1.06-1.06l-3.41 3.408H13v-1.75l3.409-3.41a.749.749 0 10-1.061-1.059L13 6.63V3.313a.75.75 0 00-1.5 0V6.63L9.152 4.28a.749.749 0 10-1.06 1.061L11.5 8.75V10.5H9.749L6.34 7.092a.749.749 0 10-1.061 1.06L7.628 10.5H3.813a.75.75 0 100 1.5h3.815l-2.35 2.349a.749.749 0 101.062 1.06L9.75 12H11.5v1.75l-3.41 3.408a.749.749 0 001.061 1.06L11.5 15.87v3.315a.75.75 0 001.5 0V15.87l2.349 2.348a.749.749 0 101.06-1.06L13 13.75V12h1.75l3.41 3.409a.749.749 0 001.06-1.061L16.872 12h3.315a.75.75 0 100-1.5z"/></svg>,
+  bigquery:  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18zM12 7a5 5 0 100 10A5 5 0 0012 7zm0 2a3 3 0 110 6 3 3 0 010-6zm4.5 6.5l1.5 1.5-1.06 1.06-1.5-1.5 1.06-1.06z"/></svg>,
+  aws:       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.064.056.128.056.184 0 .08-.048.16-.152.24l-.504.336a.383.383 0 01-.208.072c-.08 0-.16-.04-.24-.112a2.47 2.47 0 01-.288-.376 6.18 6.18 0 01-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 01-.28.104.488.488 0 01-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 01.224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 011.246-.151c.95 0 1.644.216 2.091.647.439.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 00-.735-.136 6.02 6.02 0 00-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 01-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 01.32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 01.311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 01-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 01-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.215-.151-.247-.223a.563.563 0 01-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 00.415-.758.777.777 0 00-.215-.559c-.144-.152-.39-.287-.735-.4l-1.054-.327c-.534-.168-.927-.415-1.173-.742a1.74 1.74 0 01-.374-1.086c0-.313.07-.59.207-.83.136-.24.32-.45.55-.622.23-.174.494-.304.79-.392a3.28 3.28 0 01.949-.134c.167 0 .343.008.518.032.184.024.351.056.51.096.151.032.295.072.43.12a1.7 1.7 0 01.32.143.69.69 0 01.224.19.432.432 0 01.072.256v.375c0 .168-.064.256-.183.256a.84.84 0 01-.31-.096 3.726 3.726 0 00-1.566-.319c-.455 0-.814.072-1.061.224a.732.732 0 00-.375.663c0 .215.08.4.24.55.159.152.454.304.878.44l1.03.327c.527.167.907.399 1.133.695.226.295.335.63.335 1.003 0 .32-.065.607-.192.862a1.97 1.97 0 01-.534.662 2.37 2.37 0 01-.822.43 3.495 3.495 0 01-1.062.152z"/></svg>,
+  gcp:       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.19 2.38a9.344 9.344 0 00-9.234 6.893c.053-.02-.055.013 0 0-3.875 2.551-3.922 8.11-.247 10.941l.006.005a6.016 6.016 0 003.587 1.268h11.525c1.327.01 2.62-.466 3.623-1.336.975-.832 1.753-2.072 1.847-3.662a4.931 4.931 0 00-1.235-3.512A8.802 8.802 0 0012.19 2.38zm-.005 2.528a6.27 6.27 0 014.697 2.1 6.316 6.316 0 011.525 3.4l.063.635.642.022a2.392 2.392 0 012.394 2.392c0 .794-.382 1.437-.905 1.895-.523.457-1.213.726-1.879.724H6.308a3.48 3.48 0 01-2.041-.736l-.015-.012C2.3 13.57 2.315 10.318 4.27 8.625l.438-.373-.162-.559a6.75 6.75 0 01-.17-.992 6.785 6.785 0 017.809-6.793z"/></svg>,
+  azure:     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.05 4.24L6.56 18.05H2L8.11 8.37zm.71 1.9l4.13 10.3-9.79 1.8 6.07-1.56-3.03-5.07z"/></svg>,
+  docker:    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.186.186 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.185.186v1.887c0 .102.083.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/></svg>,
+  k8s:       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.204 14.35l.007.01-.999 2.413a5.171 5.171 0 01-2.075-2.597l2.578-.437.004.005zm.24.481a5.19 5.19 0 002.523.826v-2.628l-.006-.002-2.517 1.804zm3.32.826a5.185 5.185 0 002.523-.826l-2.523-1.804v2.63zm.819-.33a5.17 5.17 0 001.62-2.24l-2.44.41 1.155 1.875-.335-.046zm1.663-2.64a5.24 5.24 0 00.046-.68 5.293 5.293 0 00-.05-.707l-2.584.44 2.588.947zm-9.48-.68c0 .226.018.45.046.67l2.59-.946-2.587-.44a5.21 5.21 0 00-.049.716zm.238-1.065l2.438.41-1.154-1.872a5.19 5.19 0 00-1.284 1.462zm2.042-2.098l1.142 1.854.005-2.605a5.162 5.162 0 00-1.147.75zm2.445-.751v2.606l1.14-1.854a5.198 5.198 0 00-1.14-.752zm1.534 1.013L11.57 11.58l2.436-.41a5.197 5.197 0 00-1.16-1.414zm-4.3 3.818H6.138a5.17 5.17 0 001.162 2.225l1.575-2.225zm9.26 0h-1.637l-1.575 2.225A5.174 5.174 0 0017.785 13zm-5.41 3.295v2.296a5.185 5.185 0 002.087-.818l-2.086-1.478zm-1.298.001l-2.087 1.477a5.186 5.186 0 002.087.819v-2.296zM12 6.5a5.5 5.5 0 100 11A5.5 5.5 0 0012 6.5zM12 2L2 6.5v9L12 20l10-4.5v-9L12 2z"/></svg>,
+  git:       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.546 10.93L13.067.452a1.55 1.55 0 00-2.188 0L8.708 2.627l2.76 2.76a1.838 1.838 0 012.327 2.341l2.658 2.66a1.838 1.838 0 11-1.103 1.076l-2.48-2.48v6.505a1.84 1.84 0 11-1.512-.036V9.35a1.836 1.836 0 01-.999-2.406L7.616 4.29.454 11.452a1.55 1.55 0 000 2.187l10.48 10.48a1.55 1.55 0 002.186 0l10.426-10.426a1.55 1.55 0 000-2.188"/></svg>,
+  tableau:   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.14 4.588V1.5h1.714v3.088h3.088v1.714h-3.088v3.088H11.14V6.302H8.051V4.588h3.089zm-7.9 9.618V12.51h2.333v1.696H1.24v.002zm17.52 0V12.51H23.1v1.696h-2.337v.002zm-8.76 4.382v-2.334h1.697v2.334h-1.697zm0-8.763V7.49h1.697v2.335h-1.697zM7.5 17.7v-1.4h1.4v1.4H7.5zm9-11.4V4.9h1.4v1.4h-1.4zM4.2 7.5H2.8v1.4h1.4V7.5zm15 7.5h-1.4v1.4h1.4V15zM4.2 15H2.8v1.4h1.4V15zm15-7.5h-1.4v1.4h1.4V7.5zM7.5 6.3V4.9h1.4v1.4H7.5z"/></svg>,
+  powerbi:   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3h4v18H5zm5 4h4v14h-4zm5-2h4v16h-4z"/></svg>,
+  terraform: <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.424 8.27l7.101 4.098V4.176L1.424 8.27zm8.329 4.8l7.101-4.098V.876L9.753 4.974v8.096zM9.753 23.124l7.101-4.098v-8.196l-7.101 4.098v8.196zm8.329-12.294v8.196L24 15.027V6.83l-5.918 4.0z"/></svg>,
+  prefect:   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-13v6l5 3-1 1.73-6-3.46V7h2z"/></svg>,
+  redshift:  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7L12 4.18z"/></svg>,
+  flink:     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>,
+  pandas:    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 3h2v18H8zm6 0h2v18h-2zM8 10.5h8v3H8z"/></svg>,
+  grafana:   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.096 11.475a5.4 5.4 0 00-.068-.63 3.88 3.88 0 00.754-.34 3.76 3.76 0 001.46-4.804 3.76 3.76 0 00-4.76-1.703 3.88 3.88 0 00-.608.353A5.42 5.42 0 0013.5 3.5h-.042a5.43 5.43 0 00-5.13 3.645 3.9 3.9 0 00-.828-.09 3.76 3.76 0 00-3.76 3.76 3.76 3.76 0 003.76 3.76c.11 0 .218-.006.326-.016a5.43 5.43 0 0010.07-2.58 5.4 5.4 0 001.2-1.504zm-6.638 5.069a4.07 4.07 0 01-3.936-3.02 2.94 2.94 0 01-.022-.31 2.7 2.7 0 011.004-2.098 2.69 2.69 0 011.694-.593c.104 0 .207.007.308.02a4.072 4.072 0 016.862 1.885 4.07 4.07 0 01-5.91 4.116z"/></svg>,
+  sqlmesh:   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
+  amplitude: <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 12h3l2-7 3 14 3-10 2 3h7"/></svg>,
+  datastudio: <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4-4h-2V8h2v8z"/></svg>,
+};
+
+/* ─── Road Animation (SVG ribbon style) ────────────────── */
+function RoadAnimation() {
+  const streamRefs  = useRef([]);
+  const fastRefs    = useRef([]);
+  const nodeRefs    = useRef([]);
+  const rafRef      = useRef(null);
+
+  useEffect(() => {
+    let offset = 0;
+    let time   = 0;
+    function animate() {
+      offset -= 1.5;
+      streamRefs.current.forEach(el => { if (el) el.style.strokeDashoffset = offset; });
+      fastRefs.current.forEach(el =>   { if (el) el.style.strokeDashoffset = offset * 2.5; });
+      time += 0.025;
+      nodeRefs.current.forEach((el, i) => {
+        if (el) el.style.transform = `translateY(${Math.sin(time + i * 2.1) * 7}px)`;
+      });
+      rafRef.current = requestAnimationFrame(animate);
+    }
+    animate();
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  const sRef  = (i) => el => { streamRefs.current[i] = el; };
+  const fRef  = (i) => el => { fastRefs.current[i]   = el; };
+  const nRef  = (i) => el => { nodeRefs.current[i]   = el; };
+
+  return (
+    <svg
+      viewBox="0 0 1440 900"
+      preserveAspectRatio="xMidYMid slice"
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.85 }}
+    >
+      <defs>
+        <linearGradient id="g-teal"   x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#0f766e" />
+          <stop offset="100%" stopColor="#2dd4bf" />
+        </linearGradient>
+        <linearGradient id="g-blue"   x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#1d4ed8" />
+          <stop offset="100%" stopColor="#60a5fa" />
+        </linearGradient>
+        <linearGradient id="g-indigo" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#4338ca" />
+          <stop offset="100%" stopColor="#818cf8" />
+        </linearGradient>
+        <linearGradient id="g-slate"  x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor="#475569" />
+          <stop offset="100%" stopColor="#94a3b8" />
+        </linearGradient>
+        <filter id="nd-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#000" floodOpacity="0.5" />
+        </filter>
+      </defs>
+
+      {/* ── Depth shadows ── */}
+      <path d="M -200 680 C 400 680, 800 480, 1600 280" fill="none" stroke="#14b8a6" strokeWidth="40" opacity="0.05" transform="translate(0,10)" />
+      <path d="M -200 700 C 400 700, 900 580, 1600 480" fill="none" stroke="#3b82f6" strokeWidth="45" opacity="0.05" transform="translate(0,10)" />
+      <path d="M -200 720 C 400 720, 900 740, 1600 840" fill="none" stroke="#6366f1" strokeWidth="50" opacity="0.05" transform="translate(0,10)" />
+
+      {/* ── Ribbons ── */}
+      <path d="M -200 740 C 400 740, 800 880, 1600 1080" fill="none" stroke="url(#g-slate)"  strokeWidth="60" strokeLinecap="round" />
+      <path d="M -200 720 C 400 720, 900 740, 1600 840"  fill="none" stroke="url(#g-indigo)" strokeWidth="50" strokeLinecap="round" />
+      <path d="M -200 700 C 400 700, 900 580, 1600 480"  fill="none" stroke="url(#g-blue)"   strokeWidth="45" strokeLinecap="round" />
+      <path d="M -200 680 C 400 680, 800 480, 1600 280"  fill="none" stroke="url(#g-teal)"   strokeWidth="40" strokeLinecap="round" />
+
+      {/* ── Geometric wrappers ── */}
+      <g stroke="#fff" strokeWidth="1.5" fill="#fff" fillOpacity="0.1" opacity="0.2">
+        <polygon points="100,670 140,665 140,695 100,700" /><polygon points="100,670 110,660 150,655 140,665" />
+        <polygon points="400,675 450,665 450,705 400,715" /><polygon points="400,675 415,660 465,650 450,665" />
+        <polygon points="750,715 820,718 820,760 750,757" /><polygon points="750,715 765,700 835,703 820,718" />
+      </g>
+
+      {/* ── Animated data streams ── */}
+      <g stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.8">
+        <path ref={sRef(0)} d="M -200 680 C 400 680, 800 480, 1600 280" strokeDasharray="8 60 20 120" strokeWidth="3" />
+        <path ref={fRef(0)} d="M -200 680 C 400 680, 800 480, 1600 280" strokeDasharray="4 200" stroke="#ccfbf1" />
+        <path ref={sRef(1)} d="M -200 700 C 400 700, 900 580, 1600 480" strokeDasharray="15 80 5 100" strokeWidth="4" />
+        <path ref={fRef(1)} d="M -200 700 C 400 700, 900 580, 1600 480" strokeDasharray="8 150" stroke="#bfdbfe" />
+        <path ref={sRef(2)} d="M -200 720 C 400 720, 900 740, 1600 840" strokeDasharray="30 100 10 60" strokeWidth="3" />
+        <path ref={fRef(2)} d="M -200 720 C 400 720, 900 740, 1600 840" strokeDasharray="10 250" stroke="#e0e7ff" />
+        <path ref={sRef(3)} d="M -200 740 C 400 740, 800 880, 1600 1080" strokeDasharray="12 40 2 80" strokeWidth="2" />
+      </g>
+
+      {/* ── Connector lines ── */}
+      <g stroke="#475569" strokeWidth="1.5" opacity="0.6">
+        <line x1="980" y1="360" x2="980" y2="445" />
+        <line x1="1280" y1="460" x2="1280" y2="520" />
+        <line x1="900" y1="830" x2="900" y2="733" />
+        <line x1="1200" y1="785" x2="1200" y2="765" />
+        <line x1="1200" y1="840" x2="1200" y2="905" />
+      </g>
+
+      {/* ── Floating nodes ── */}
+      {/* Cube */}
+      <g ref={nRef(0)} style={{ transformOrigin: '980px 320px' }}>
+        <polygon points="980,260 1030,290 1030,350 980,380 930,350 930,290" fill="#0f172a" stroke="#334155" strokeWidth="1.5" filter="url(#nd-shadow)" />
+        <polygon points="980,270 1020,295 980,320 940,295" fill="#3b82f6" />
+        <polygon points="940,295 980,320 980,370 940,345" fill="#1e40af" />
+        <polygon points="1020,295 980,320 980,370 1020,345" fill="#1d4ed8" />
+      </g>
+
+      {/* Pie chart */}
+      <g ref={nRef(1)} style={{ transformOrigin: '1280px 420px' }}>
+        <circle cx="1280" cy="420" r="45" fill="#0f172a" stroke="#334155" strokeWidth="1.5" filter="url(#nd-shadow)" />
+        <circle cx="1280" cy="420" r="35" fill="#1e293b" />
+        <path d="M 1280 420 L 1280 385 A 35 35 0 0 1 1310 402 Z" fill="#0ea5e9" />
+        <path d="M 1280 420 L 1310 402 A 35 35 0 0 1 1295 450 Z" fill="#4338ca" />
+        <path d="M 1280 420 L 1295 450 A 35 35 0 0 1 1245 420 Z" fill="#0d9488" />
+        <path d="M 1280 420 L 1245 420 A 35 35 0 0 1 1280 385 Z" fill="#1e293b" />
+      </g>
+
+      {/* Bar chart */}
+      <g ref={nRef(2)} style={{ transformOrigin: '1200px 810px' }}>
+        <rect x="1165" y="750" width="70" height="90" rx="6" fill="#0f172a" stroke="#334155" strokeWidth="1.5" filter="url(#nd-shadow)" />
+        <rect x="1175" y="760" width="15" height="35" fill="#3b82f6" />
+        <rect x="1195" y="760" width="15" height="15" fill="#818cf8" />
+        <rect x="1215" y="760" width="10" height="45" fill="#14b8a6" />
+        <rect x="1195" y="780" width="15" height="25" fill="#94a3b8" />
+        <rect x="1175" y="800" width="15" height="30" fill="#0d9488" />
+        <rect x="1195" y="810" width="15" height="20" fill="#4338ca" />
+        <rect x="1215" y="810" width="10" height="20" fill="#1e40af" />
+      </g>
+
+      {/* Pixel grid */}
+      <g ref={nRef(3)} style={{ transformOrigin: '900px 870px' }}>
+        <rect x="860" y="830" width="80" height="80" rx="8" fill="#0f172a" stroke="#334155" strokeWidth="1.5" filter="url(#nd-shadow)" />
+        <rect x="872" y="842" width="15" height="15" fill="#2dd4bf" />
+        <rect x="892" y="842" width="15" height="15" fill="#818cf8" />
+        <rect x="912" y="842" width="15" height="15" fill="#94a3b8" />
+        <rect x="872" y="862" width="15" height="15" fill="#4338ca" />
+        <rect x="892" y="862" width="15" height="15" fill="#3b82f6" />
+        <rect x="912" y="862" width="15" height="15" fill="#1e40af" />
+        <rect x="872" y="882" width="15" height="15" fill="#0d9488" />
+        <rect x="892" y="882" width="15" height="15" fill="#94a3b8" />
+        <rect x="912" y="882" width="15" height="15" fill="#0f766e" />
+      </g>
+    </svg>
+  );
+}
+
+/* ─── Pipeline Stage ───────────────────────────────────── */
+const PIPELINE_STAGES = [
+  { label: 'Ingest',        side: 'left',  color: '#22d3ee', tools: [
+    { id: 'python',  name: 'Python',   role: 'API calls, scripts & connectors' },
+    { id: 'kafka',   name: 'Kafka',    role: 'Real-time event streaming' },
+  ]},
+  { label: 'Process',       side: 'right', color: '#60a5fa', tools: [
+    { id: 'spark',   name: 'Spark',    role: 'Distributed batch & stream processing' },
+    { id: 'flink',   name: 'Flink',    role: 'Stateful stream processing' },
+    { id: 'pandas',  name: 'Pandas',   role: 'In-memory data wrangling' },
+  ]},
+  { label: 'Orchestrate',   side: 'left',  color: '#a78bfa', tools: [
+    { id: 'airflow', name: 'Airflow',  role: 'DAG scheduling & monitoring' },
+  ]},
+  { label: 'Transform',     side: 'right', color: '#34d399', tools: [
+    { id: 'dbt',     name: 'dbt',      role: 'SQL-based data modelling' },
+    { id: 'sql',     name: 'SQL',      role: 'Warehouse-native transforms' },
+    { id: 'sqlmesh', name: 'SQLMesh',  role: 'Next-gen data transformation' },
+  ]},
+  { label: 'Store',         side: 'left',  color: '#60a5fa', tools: [
+    { id: 'snowflake', name: 'Snowflake', role: 'Cloud data warehouse' },
+    { id: 'bigquery',  name: 'BigQuery',  role: 'Serverless analytics (GCP)' },
+    { id: 'redshift',  name: 'Redshift',  role: 'AWS data warehouse' },
+    { id: 'sql',       name: 'Delta Lake',role: 'Open lakehouse storage' },
+  ]},
+  { label: 'Cloud & Infra', side: 'right', color: '#fb923c', tools: [
+    { id: 'aws',      name: 'AWS',      role: 'S3, Redshift, Glue, Lambda' },
+    { id: 'gcp',      name: 'GCP',      role: 'GCS, BigQuery, Dataflow' },
+    { id: 'azure',    name: 'Azure',    role: 'ADLS, Synapse, Data Factory' },
+    { id: 'docker',   name: 'Docker',   role: 'Containerised pipelines' },
+    { id: 'k8s',      name: 'K8s',      role: 'Container orchestration' },
+    { id: 'terraform',name: 'Terraform',role: 'Infrastructure as code' },
+    { id: 'git',      name: 'Git',      role: 'Version control & CI/CD' },
+  ]},
+  { label: 'Visualise',     side: 'left',  color: '#f472b6', tools: [
+    { id: 'tableau',     name: 'Tableau',      role: 'Interactive BI dashboards' },
+    { id: 'powerbi',     name: 'Power BI',     role: 'Microsoft BI & reporting' },
+    { id: 'grafana',     name: 'Grafana',      role: 'Metrics & observability' },
+    { id: 'amplitude',   name: 'Amplitude',    role: 'Product analytics platform' },
+    { id: 'datastudio',  name: 'Looker Studio',role: 'Google data visualisation' },
+  ]},
+];
+
+function ToolIcon({ tool, side }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'default' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div style={{
+        width: 28, height: 28,
+        color: hover ? '#60a5fa' : '#64748b',
+        transition: 'color 150ms ease, transform 150ms cubic-bezier(0.4,0,0.2,1)',
+        transform: hover ? 'scale(1.2)' : 'scale(1)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {SVG[tool.id] || <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg>}
+      </div>
+      {hover && (
+        <div style={{
+          position: 'absolute',
+          top: '50%', transform: 'translateY(-50%)',
+          [side === 'left' ? 'right' : 'left']: 'calc(100% + 10px)',
+          background: '#1e293b',
+          border: '0.8px solid rgba(51,65,85,0.9)',
+          borderRadius: 8, padding: '7px 12px',
+          pointerEvents: 'none', zIndex: 300,
+          whiteSpace: 'nowrap',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+        }}>
+          <div style={{ fontFamily: 'system-ui', fontSize: 12, fontWeight: 500, color: '#e2e8f0', marginBottom: 2 }}>{tool.name}</div>
+          <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 10, color: '#64748b', maxWidth: 160, whiteSpace: 'normal', lineHeight: 1.4 }}>{tool.role}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Pipeline() {
+  return (
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: 520 }}>
+      <div style={{
+        position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1,
+        transform: 'translateX(-50%)',
+        background: 'linear-gradient(to bottom, transparent, #334155 6%, #334155 94%, transparent)',
+        zIndex: 0,
+      }} />
+      {PIPELINE_STAGES.map((stage, i) => {
+        const isLeft = stage.side === 'left';
+        return (
+          <div key={i} style={{
+            position: 'relative', zIndex: 1, width: '100%',
+            display: 'grid', gridTemplateColumns: '1fr 20px 1fr',
+            alignItems: 'center', padding: '16px 0',
+          }}>
+            {isLeft ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', paddingRight: 20, gap: 8 }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: stage.color, opacity: 0.85 }}>{stage.label}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'flex-end' }}>
+                  {stage.tools.map(tool => <ToolIcon key={tool.id + tool.name} tool={tool} side="left" />)}
+                </div>
+              </div>
+            ) : <div />}
+            <div style={{
+              width: 11, height: 11, borderRadius: '50%',
+              background: '#0c1220', border: `1.5px solid ${stage.color}`,
+              justifySelf: 'center', zIndex: 2,
+              boxShadow: `0 0 10px ${stage.color}70`,
+            }} />
+            {!isLeft ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', paddingLeft: 20, gap: 8 }}>
+                <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: stage.color, opacity: 0.85 }}>{stage.label}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'flex-start' }}>
+                  {stage.tools.map(tool => <ToolIcon key={tool.id + tool.name} tool={tool} side="right" />)}
+                </div>
+              </div>
+            ) : <div />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── Projects ─────────────────────────────────────────── */
+const ALL_PROJECTS = [
+  { num: '01', title: 'Real-time Event Streaming Platform',
+    desc: 'End-to-end streaming pipeline ingesting millions of events per hour. Kafka → Spark Streaming → Snowflake with sub-second latency SLAs.',
+    tags: ['Kafka', 'Spark', 'Snowflake', 'Python', 'Airflow', 'AWS'] },
+  { num: '02', title: 'Cloud Data Warehouse Migration',
+    desc: 'Led full migration from on-prem Hadoop to cloud-native architecture. Reduced query times by 10× and cut infrastructure costs by 40%.',
+    tags: ['BigQuery', 'dbt', 'Terraform', 'GCP', 'SQL', 'Airflow'] },
+  { num: '03', title: 'Modular dbt Transformation Layer',
+    desc: 'Built reusable dbt model library spanning 200+ models with full test coverage, documentation, and CI/CD via GitHub Actions.',
+    tags: ['dbt', 'SQL', 'Git', 'Snowflake', 'Python'] },
+  { num: '04', title: 'Kubernetes-native Data Platform',
+    desc: 'Designed and deployed a self-service data platform on Kubernetes with Airflow, Spark, and Delta Lake — running on bare GCP infrastructure.',
+    tags: ['Kubernetes', 'Spark', 'GCP', 'Docker', 'Terraform', 'Airflow'] },
+  { num: '05', title: 'BI Reporting Overhaul',
+    desc: 'Replaced legacy Excel reporting with a Tableau + Power BI layer backed by a Snowflake semantic layer — cut report refresh times by 95%.',
+    tags: ['Tableau', 'Power BI', 'Snowflake', 'dbt', 'SQL'] },
+  { num: '06', title: 'Data Quality Observability Framework',
+    desc: 'Built a comprehensive data quality framework using Great Expectations, Grafana dashboards, and automated Slack/PagerDuty alerting.',
+    tags: ['Python', 'Grafana', 'Airflow', 'SQL', 'Docker'] },
+];
+
+// All unique tags across projects
+const ALL_TAGS = ['All', ...Array.from(new Set(ALL_PROJECTS.flatMap(p => p.tags))).sort()];
+
+function ProjectCard({ project }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      className="project-card"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div className="project-number">{project.num}</div>
+      <div className="project-title">{project.title}</div>
+      <div className="project-desc">{project.desc}</div>
+      <div className="project-tags">
+        {project.tags.map(tag => <span key={tag} className="project-tag">{tag}</span>)}
+      </div>
+      <div className="project-arrow">↗</div>
+    </div>
+  );
+}
+
+/* ─── Main App ─────────────────────────────────────────── */
+function App() {
+  const [activeFilter, setActiveFilter] = useState('All');
+
+  const visibleProjects = useMemo(() =>
+    activeFilter === 'All'
+      ? ALL_PROJECTS
+      : ALL_PROJECTS.filter(p => p.tags.includes(activeFilter)),
+    [activeFilter]
+  );
+
+  return (
+    <div>
+      {/* ══ HERO ══════════════════════════════════════════ */}
+      <section id="hero">
+        <RoadAnimation />
+
+        {/* left-side fade so text stays fully legible — ribbons own the right */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(12,18,32,0.96) 0%, rgba(12,18,32,0.85) 35%, rgba(12,18,32,0.2) 65%, rgba(12,18,32,0.0) 100%)', zIndex: 1, pointerEvents: 'none' }} />
+        {/* bottom fade */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '30%', background: 'linear-gradient(to bottom, transparent, rgba(12,18,32,0.9))', zIndex: 1, pointerEvents: 'none' }} />
+
+        <div className="hero-content">
+          <div className="hero-eyebrow">End to end full stack data professional</div>
+          <h1 className="hero-title">Denislav Denev</h1>
+          <p className="hero-sub">
+            From raw events to boardroom dashboards — I own the whole journey.
+          </p>
+          <div className="hero-actions">
+            <a href="#projects" className="btn-primary">View my work</a>
+            <a href="#contact" className="btn-secondary">Get in touch</a>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ ABOUT ═════════════════════════════════════════ */}
+      <section id="about">
+        <div className="container">
+          <div className="about-grid">
+            {/* Bio text — centered */}
+            <div className="about-text" style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto' }}>
+              <p>Hey, I'm <strong>Denis</strong> — I build data systems end to end. That means everything from wiring up the first Kafka topic to the Tableau dashboard your CEO opens on Monday morning.</p>
+              <p>I've worked across the full stack: ingestion, transformation, orchestration, warehousing, and BI. I care about pipelines that are <strong>boring in the best way</strong> — reliable, observable, and so well-built nobody notices them.</p>
+
+            </div>
+
+
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PIPELINE ══════════════════════════════════════ */}
+      <section id="pipeline">
+        <div className="container">
+          <div className="section-label">Stack</div>
+          <h2 className="section-title" style={{ textAlign: 'center', marginBottom: 48 }}>The full pipeline</h2>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Pipeline />
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PROJECTS ══════════════════════════════════════ */}
+      <section id="projects">
+        <div className="container">
+          <div className="section-label">Projects</div>
+          <h2 className="section-title">Selected work</h2>
+          <p style={{ fontFamily: 'system-ui', fontSize: 18, lineHeight: '29.25px', color: 'var(--text-secondary)', marginTop: 8 }}>
+            Filter by technology to find relevant work.
+          </p>
+
+          {/* Filter bar */}
+          <div className="filter-bar">
+            {ALL_TAGS.map(tag => (
+              <button
+                key={tag}
+                className={`filter-chip${activeFilter === tag ? ' active' : ''}`}
+                onClick={() => setActiveFilter(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="projects-grid">
+            {visibleProjects.length > 0
+              ? visibleProjects.map(p => <ProjectCard key={p.num} project={p} />)
+              : (
+                <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 0', color: 'var(--text-dim)', fontFamily: 'system-ui', fontSize: 16 }}>
+                  No projects match this filter yet.
+                </div>
+              )
+            }
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CONTACT ═══════════════════════════════════════ */}
+      <section id="contact">
+        <div className="container">
+          <div className="contact-inner">
+            <a href="mailto:denislav@denev.work" className="contact-email">denislav@denev.work</a>
+            <div className="contact-links">
+              <a href="https://github.com/denislavdenev" target="_blank" rel="noopener noreferrer" className="btn-secondary">GitHub</a>
+              <a href="https://linkedin.com/in/denislavdenev/" target="_blank" rel="noopener noreferrer" className="btn-secondary">LinkedIn</a>
+              <a href="#" className="btn-secondary">Download CV</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FOOTER ════════════════════════════════════════ */}
+      <footer>
+        <div className="footer-copy">© 2026 Denislav Denev</div>
+        <div className="footer-copy">Built with intent · GitHub Pages</div>
+      </footer>
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>
