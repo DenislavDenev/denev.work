@@ -408,6 +408,7 @@
   }
 
   .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .project-card .project-tags { justify-content: center; }
 
   .project-tag {
     font-family: var(--font-label);
@@ -901,7 +902,7 @@ const PIPELINE_STAGES = [
     { id: 'gcp',      name: 'GCP',      role: 'GCS, BigQuery, Dataflow' },
     { id: 'azure',    name: 'Azure',    role: 'ADLS, Synapse, Data Factory' },
     { id: 'docker',   name: 'Docker',   role: 'Containerised pipelines' },
-    { id: 'k8s',      name: 'K8s',      role: 'Container orchestration' },
+    { id: 'k8s',      name: 'Kubernetes', role: 'Container orchestration' },
     { id: 'terraform',name: 'Terraform',role: 'Infrastructure as code' },
     { id: 'git',      name: 'Git',      role: 'Version control & CI/CD' },
   ]},
@@ -1000,7 +1001,7 @@ function Pipeline() {
 const ALL_PROJECTS = [
   { num: '01', title: 'Market Price Intelligence Platform',
     desc: 'Weekly Airflow pipeline scraping ~20,000 food products from a JS-rendered SPA, plus 30 years of Bulgarian property prices across 28 cities. Selenium on Kubernetes handles the JS rendering, JSONL output lands in GCS, and BigQuery serves week-over-week price analysis.',
-    tags: ['Python', 'Selenium', 'Airflow', 'Kubernetes', 'GCS', 'BigQuery'],
+    tags: ['Python', 'SQL', 'Airflow', 'Kubernetes', 'GCP', 'GCS', 'BigQuery'],
     highlights: [
       'Ingestion: listing pages collected with lightweight requests, then individual product pages loaded via Selenium Remote WebDriver to capture JS-rendered pricing and metadata absent from static HTML. Splitting pagination from rendering keeps the slow path narrow.',
       'Orchestration: Airflow KubernetesExecutor on k3s (Helm-deployed) schedules the weekly scrape. Tasks run in ephemeral pods built from a custom Docker image with selenium and webdriver-manager pre-installed, so every run starts from the same reproducible environment.',
@@ -1016,7 +1017,7 @@ const ALL_PROJECTS = [
     tags: ['dbt', 'SQL', 'Git', 'Snowflake', 'Python'] },
   { num: '04', title: 'Kubernetes-native Data Platform',
     desc: 'Designed and deployed a self-service data platform on Kubernetes with Airflow, Spark, and Delta Lake, running on bare GCP infrastructure.',
-    tags: ['K8s', 'Spark', 'GCP', 'Docker', 'Terraform', 'Airflow'] },
+    tags: ['Kubernetes', 'Spark', 'GCP', 'Docker', 'Terraform', 'Airflow'] },
   { num: '05', title: 'BI Reporting Overhaul',
     desc: 'Replaced legacy Excel reporting with a Tableau + Power BI layer backed by a Snowflake semantic layer, cutting report refresh times by 95%.',
     tags: ['Tableau', 'Power BI', 'Snowflake', 'dbt', 'SQL'] },
@@ -1044,8 +1045,8 @@ const ALL_TAGS = (() => {
       }
     });
   });
-  // Plus any project tag that doesn't appear in the pipeline (e.g. Kubernetes
-  // vs K8s alias differences) so no project is unreachable.
+  // Plus any project tag that doesn't appear in the pipeline,
+  // so no project is unreachable from the filter chips.
   ALL_PROJECTS.forEach(p => p.tags.forEach(t => {
     if (PROJECT_FILTER_EXCLUDE.has(t)) return;
     if (!seen.has(t)) { seen.add(t); tags.push(t); }
