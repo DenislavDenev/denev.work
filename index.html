@@ -998,9 +998,16 @@ function Pipeline() {
 
 /* ─── Projects ─────────────────────────────────────────── */
 const ALL_PROJECTS = [
-  { num: '01', title: 'Real-time Event Streaming Platform',
-    desc: 'End-to-end streaming pipeline ingesting millions of events per hour. Kafka → Spark Streaming → Snowflake with sub-second latency SLAs.',
-    tags: ['Kafka', 'Spark', 'Snowflake', 'Python', 'Airflow', 'AWS'] },
+  { num: '01', title: 'Market Price Intelligence Platform',
+    desc: 'Weekly Airflow pipeline scraping ~20,000 food products from a JS-rendered SPA, plus 30 years of Bulgarian property prices across 28 cities. Selenium on Kubernetes handles the JS rendering, JSONL output lands in GCS, and BigQuery serves week-over-week price analysis.',
+    tags: ['Python', 'Selenium', 'Airflow', 'Kubernetes', 'GCS', 'BigQuery'],
+    highlights: [
+      'Ingestion: listing pages collected with lightweight requests, then individual product pages loaded via Selenium Remote WebDriver to capture JS-rendered pricing and metadata absent from static HTML. Splitting pagination from rendering keeps the slow path narrow.',
+      'Orchestration: Airflow KubernetesExecutor on k3s (Helm-deployed) schedules the weekly scrape. Tasks run in ephemeral pods built from a custom Docker image with selenium and webdriver-manager pre-installed, so every run starts from the same reproducible environment.',
+      'Reliability: Chrome OOM in long-running pods resolved by recycling each Selenium session at a fixed URL interval and reinitialising on WebDriverException. Two concurrent workers share a persistent selenium/standalone-chrome Deployment in the Airflow namespace via cluster-internal DNS.',
+      'Storage: scraper writes thread-safe JSONL, staged in GCS by date partition, then append-loaded to BigQuery staging with an explicit schema covering pricing, product attributes, and a scraped_at timestamp. Delta queries run directly off the partition without a secondary state table.',
+      'Historical baseline: one-time Airflow DAG backfilled 30 years of property prices across 28 cities spanning sales, rentals, and plots into BigQuery via GCS JSONL. Establishes the time-series foundation for ongoing weekly comparisons.',
+    ] },
   { num: '02', title: 'Cloud Data Warehouse Migration',
     desc: 'Led full migration from on-prem Hadoop to cloud-native architecture. Reduced query times by 10× and cut infrastructure costs by 40%.',
     tags: ['BigQuery', 'dbt', 'Terraform', 'GCP', 'SQL', 'Airflow'] },
